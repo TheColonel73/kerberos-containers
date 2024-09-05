@@ -1,3 +1,5 @@
+# Based on https://github.com/ist-dsi/docker-kerberos/blob/master/kdc-kadmin/init-script.sh
+# by Simão Martins and David Duarte
 #!/bin/bash
 echo "==================================================================================="
 echo "==== Kerberos KDC and Kadmin ======================================================"
@@ -60,3 +62,21 @@ $MASTER_PASSWORD
 $MASTER_PASSWORD
 EOF
 echo ""
+
+echo "==================================================================================="
+echo "==== Creating default principals in the acl ======================================="
+echo "==================================================================================="
+echo "Adding $KADMIN_PRINCIPAL principal"
+kadmin.local -q "delete_principal -force $KADMIN_PRINCIPAL_FULL"
+echo ""
+kadmin.local -q "addprinc -pw $KADMIN_PASSWORD $KADMIN_PRINCIPAL_FULL"
+echo ""
+
+echo "Adding noPermissions principal"
+kadmin.local -q "delete_principal -force noPermissions@$REALM"
+echo ""
+kadmin.local -q "addprinc -pw $KADMIN_PASSWORD noPermissions@$REALM"
+echo ""
+
+krb5kdc
+kadmind -nofork
